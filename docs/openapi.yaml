@@ -1,0 +1,299 @@
+openapi: 3.0.3
+info:
+  title: Auth Portal REST API
+  description: Authentication portal REST API for user registration, authentication, and profile retrieval.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+paths:
+  /health:
+    get:
+      summary: Health check
+      description: Returns service status. Used by Docker health check and monitoring.
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /api/v1/auth/register:
+    post:
+      summary: Register a new user
+      description: Create a new user account with name, email, gender, and password.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/UserProfile'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '409':
+          description: Email already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: EMAIL_ALREADY_USED
+                  message: Email is already registered
+
+  /api/v1/auth/login:
+    post:
+      summary: Authenticate user
+      description: Login with email and password to receive a JWT access token.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/LoginData'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: INVALID_CREDENTIALS
+                  message: Invalid email or password
+
+  /api/v1/users/me:
+    get:
+      summary: Get current user profile
+      description: Retrieve the authenticated user profile using a Bearer token.
+      tags:
+        - User
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: Unauthorized (missing, invalid, or expired token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                tokenMissing:
+                  summary: Missing token
+                  value:
+                    success: false
+                    error:
+                      code: TOKEN_MISSING
+                      message: 'Authorization header must be "Bearer <token>"'
+                tokenInvalid:
+                  summary: Invalid token
+                  value:
+                    success: false
+                    error:
+                      code: TOKEN_INVALID
+                      message: Token is not valid
+                tokenExpired:
+                  summary: Expired token
+                  value:
+                    success: false
+                    error:
+                      code: TOKEN_EXPIRED
+                      message: Token has expired
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Enter the JWT access token obtained from POST /api/v1/auth/login.
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required:
+        - name
+        - email
+        - gender
+        - password
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: Sarah Connor
+        email:
+          type: string
+          format: email
+          example: sarah@example.com
+        gender:
+          type: string
+          enum:
+            - male
+            - female
+          example: female
+        password:
+          type: string
+          minLength: 8
+          maxLength: 72
+          description: 8 to 72 characters, must contain at least one letter and one number
+          example: SecretPassword123
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: sarah@example.com
+        password:
+          type: string
+          example: SecretPassword123
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+        name:
+          type: string
+          example: Sarah Connor
+        email:
+          type: string
+          format: email
+          example: sarah@example.com
+        gender:
+          type: string
+          enum:
+            - male
+            - female
+          example: female
+        created_at:
+          type: string
+          format: date-time
+          example: '2026-11-01T12:00:00.000Z'
+
+    LoginData:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        token_type:
+          type: string
+          example: Bearer
+        expires_in:
+          type: integer
+          example: 3600
+
+    ValidationErrorDetail:
+      type: object
+      properties:
+        field:
+          type: string
+          example: email
+        message:
+          type: string
+          example: Invalid email address
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: Invalid request data
+            details:
+              type: array
+              items:
+                $ref: '#/components/schemas/ValidationErrorDetail'
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: INVALID_CREDENTIALS
+            message:
+              type: string
+              example: Invalid email or password

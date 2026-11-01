@@ -30,4 +30,12 @@ describe('Health and System Routes', () => {
       message: 'Request body is not valid JSON',
     });
   });
+
+  it('GET /api/docs/ returns 200 and serves Swagger UI HTML', async () => {
+    const res = await request(app).get('/api/docs/');
+
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/html/);
+    expect(res.text).toContain('swagger-ui');
+  });
 });
