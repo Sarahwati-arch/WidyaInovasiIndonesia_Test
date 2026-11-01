@@ -48,7 +48,7 @@ This project provides core authentication capabilities adhering strictly to clea
 | **Request Validation** | `zod` | Declarative, schema validation with strong typing |
 | **Password Hashing** | `bcrypt` (10 rounds) | Adaptive, salted cryptographic hash function |
 | **Token Management** | `jsonwebtoken` (HS256) | Stateless authentication standard |
-| **Security Middleware**| `helmet`, `cors` | HTTP header protection and configurable CORS policy |
+| **Security Middleware**| `helmet`, `cors`, `express-rate-limit` | HTTP header protection, CORS policy, and brute-force mitigation |
 | **Testing** | `jest`, `supertest` | Fast in-memory unit tests and integration tests |
 | **API Docs** | Swagger UI (`yamljs`, OpenAPI 3.0) | Interactive, self-documenting API portal |
 | **Containerization** | Docker, Docker Compose | Reproducible environments across local and production |
@@ -561,3 +561,4 @@ Certbot will automatically configure HTTPS certificates and set up automatic ren
 2. **Rate Limiting**: Integrate distributed rate limiting (e.g., `rate-limiter-flexible` with Redis store) on `/auth/*` endpoints to defend against brute-force attacks across clustered instances.
 3. **Email Verification**: Implement tokenized email verification links sent via SMTP upon registration.
 4. **Password Reset Flow**: Implement time-limited password reset tokens and secure reset endpoints.
+
