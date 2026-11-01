@@ -1,0 +1,15 @@
+# Production overrides for docker-compose.yml
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# Key differences from the base file:
+# - DB port is NOT exposed to the host (internal only)
+# - restart: unless-stopped on both services (already set in base, confirmed here)
+# - CORS_ORIGIN should be set to your real domain in .env
+
+services:
+  db:
+    restart: unless-stopped
+    ports: !reset []
+
+  api:
+    restart: unless-stopped
