@@ -2,7 +2,7 @@
 process.env.NODE_ENV = 'test';
 process.env.PORT = '3001';
 process.env.DATABASE_URL =
-  process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/auth_portal_test';
+  process.env.TEST_DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/auth_portal_test';
 process.env.JWT_SECRET =
   process.env.JWT_SECRET ||
   'test_jwt_secret_must_be_at_least_32_characters_long_for_zod_validation';
