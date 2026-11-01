@@ -1,7 +1,8 @@
 const { Router } = require('express');
+const authRoutes = require('./auth.routes');
 
 const router = Router();
 
-// Feature routers are mounted here (auth, users).
+router.use('/auth', authRoutes);
 
 module.exports = router;
