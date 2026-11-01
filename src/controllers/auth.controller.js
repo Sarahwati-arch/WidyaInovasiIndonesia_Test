@@ -6,4 +6,9 @@ const register = async (req, res) => {
   res.status(201).json(success(user));
 };
 
-module.exports = { register };
+const login = async (req, res) => {
+  const result = await authService.login(req.body);
+  res.status(200).json(success(result));
+};
+
+module.exports = { register, login };

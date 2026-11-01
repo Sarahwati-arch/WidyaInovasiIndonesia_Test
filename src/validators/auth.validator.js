@@ -1,7 +1,11 @@
 const { z } = require('zod');
 
 // Email is trimmed and lowercased once here, so the rest of the code can trust it.
-const email = z.string('Email is required').trim().toLowerCase().pipe(z.email('Invalid email address'));
+const email = z
+  .string('Email is required')
+  .trim()
+  .toLowerCase()
+  .pipe(z.email('Invalid email address'));
 
 const registerSchema = z.object({
   name: z
