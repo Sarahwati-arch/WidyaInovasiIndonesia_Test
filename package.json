@@ -11,8 +11,8 @@
     "format:check": "prettier --check .",
     "test": "jest --runInBand",
     "test:coverage": "jest --runInBand --coverage",
-    "migrate:up": "node-pg-migrate up -m migrations",
-    "migrate:down": "node-pg-migrate down -m migrations",
+    "migrate:up": "node-pg-migrate up -m migrations --envPath .env",
+    "migrate:down": "node-pg-migrate down -m migrations --envPath .env",
     "migrate:create": "node-pg-migrate create -m migrations"
   },
   "license": "MIT",
